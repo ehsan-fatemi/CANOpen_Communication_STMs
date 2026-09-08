@@ -1,0 +1,138 @@
+/* USER CODE BEGIN Header */
+/**
+  ******************************************************************************
+  * @file    can.c
+  * @brief   This file provides code for the configuration
+  *          of the CAN instances.
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
+/* Includes ------------------------------------------------------------------*/
+#include "can.h"
+
+/* USER CODE BEGIN 0 */
+
+/* USER CODE END 0 */
+
+CAN_HandleTypeDef hcan;
+
+/* CAN init function */
+void MX_CAN_Init(void)
+{
+
+  /* USER CODE BEGIN CAN_Init 0 */
+
+  /* USER CODE END CAN_Init 0 */
+
+  /* USER CODE BEGIN CAN_Init 1 */
+
+  /* USER CODE END CAN_Init 1 */
+  hcan.Instance = CAN;
+  hcan.Init.Prescaler = 3;
+  hcan.Init.Mode = CAN_MODE_NORMAL;
+  hcan.Init.SyncJumpWidth = CAN_SJW_1TQ;
+  hcan.Init.TimeSeg1 = CAN_BS1_13TQ;
+  hcan.Init.TimeSeg2 = CAN_BS2_2TQ;
+  hcan.Init.TimeTriggeredMode = DISABLE;
+  hcan.Init.AutoBusOff = DISABLE;
+  hcan.Init.AutoWakeUp = DISABLE;
+  hcan.Init.AutoRetransmission = DISABLE;
+  hcan.Init.ReceiveFifoLocked = DISABLE;
+  hcan.Init.TransmitFifoPriority = DISABLE;
+  if (HAL_CAN_Init(&hcan) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN CAN_Init 2 */
+
+  /* USER CODE END CAN_Init 2 */
+
+}
+
+void HAL_CAN_MspInit(CAN_HandleTypeDef* canHandle)
+{
+
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  if(canHandle->Instance==CAN)
+  {
+  /* USER CODE BEGIN CAN_MspInit 0 */
+
+  /* USER CODE END CAN_MspInit 0 */
+    /* CAN clock enable */
+    __HAL_RCC_CAN1_CLK_ENABLE();
+
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    /**CAN GPIO Configuration
+    PB9     ------> CAN_TX
+    PB8     ------> CAN_RX
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_9|GPIO_PIN_8;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF4_CAN;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /* CAN interrupt Init */
+    HAL_NVIC_SetPriority(CEC_CAN_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(CEC_CAN_IRQn);
+  /* USER CODE BEGIN CAN_MspInit 1 */
+
+  /* USER CODE END CAN_MspInit 1 */
+  }
+}
+
+void HAL_CAN_MspDeInit(CAN_HandleTypeDef* canHandle)
+{
+
+  if(canHandle->Instance==CAN)
+  {
+  /* USER CODE BEGIN CAN_MspDeInit 0 */
+
+  /* USER CODE END CAN_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_CAN1_CLK_DISABLE();
+
+    /**CAN GPIO Configuration
+    PB9     ------> CAN_TX
+    PB8     ------> CAN_RX
+    */
+    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_9|GPIO_PIN_8);
+
+    /* CAN interrupt Deinit */
+    HAL_NVIC_DisableIRQ(CEC_CAN_IRQn);
+  /* USER CODE BEGIN CAN_MspDeInit 1 */
+
+  /* USER CODE END CAN_MspDeInit 1 */
+  }
+}
+
+/* USER CODE BEGIN 1 */
+uint32_t txMailbox;
+CAN_TxHeaderTypeDef txHeader;
+//uint8_t tx_can_data[2] = {8 , 9 };
+
+void can_send_data(uint8_t * tx_can_data , uint8_t size)
+{
+	txHeader.IDE = CAN_ID_STD;
+	txHeader.StdId = 0x200;
+	txHeader.ExtId = 0x000;
+	txHeader.RTR = CAN_RTR_DATA;
+	txHeader.DLC = size;
+
+	HAL_CAN_AddTxMessage(&hcan, &txHeader, tx_can_data, &txMailbox);
+
+}
+
+
+/* USER CODE END 1 */
