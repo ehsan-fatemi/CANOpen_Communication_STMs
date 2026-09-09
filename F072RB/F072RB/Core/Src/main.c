@@ -105,12 +105,12 @@ int main(void)
   HAL_UART_Transmit(&huart1, "\r\nUART 1 Started!", sizeof("\r\nUART 1 Started!") , 100);
   HAL_UART_Receive_IT(&huart1, &Rx_buffer, 2);
 
-
   canoepn_app_init();
 
-nmt_operation_mode_command();
-nmt_heartbeat_command();
+	nmt_operation_mode_command();
 
+
+	uint32_t previous_time = HAL_GetTick();
 
   /* USER CODE END 2 */
 
@@ -118,16 +118,26 @@ nmt_heartbeat_command();
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-	  HAL_Delay(300);
+	  uint32_t current_time = HAL_GetTick();
+	  if(current_time - previous_time >= 300)
+	  {
+		  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+		  previous_time = current_time;
+	  }
 
 	  canopen_app_process();
 
 
 
+	  if(sdo_rw.read_state ==  SDO_RW_IDLE)
+	  {
+		  sdo_write();
+	  }
 
-
-
+	  if(sdo_rw.write_state == SDO_RW_IDLE)
+	  {
+	  	sdo_read();
+	  }
 
 
     /* USER CODE END WHILE */
