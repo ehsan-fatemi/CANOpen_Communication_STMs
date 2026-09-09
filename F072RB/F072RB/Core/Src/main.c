@@ -129,15 +129,34 @@ int main(void)
 
 
 
-	  if(sdo_rw.read_state ==  SDO_RW_IDLE)
+	  if(sdo_rw.read_state !=  SDO_RW_RUNNING && sdo_rw.write_state != SDO_RW_DONE)
 	  {
-		  sdo_write();
+		  uint8_t buffer[2] = {0x00 , 0x01};
+		  sdo_write(0x1017 , 0x00 , 2 , buffer , 2 , 0x05 );
 	  }
 
-	  if(sdo_rw.write_state == SDO_RW_IDLE)
+	  if(sdo_rw.write_state != SDO_RW_RUNNING && sdo_rw.read_state != SDO_RW_PRINTED)
 	  {
-	  	sdo_read();
+		  uint16_t object = 0x1017;
+		  uint8_t buffer[2] = {0};
+	  	sdo_read(object , 0x00 , buffer , 2 , 0x05);
+
+		  if(sdo_rw.read_state ==  SDO_RW_DONE )
+		  	  	{
+		  	  		char msg[30];
+		  			sprintf(msg, "\r\nObject of 0x%x is: 0x%.2x , 0x%.2x \r\n" , object , buffer[0] , buffer[1]);
+		  			HAL_UART_Transmit(&huart1, msg, strlen(msg), 100);
+		  			sdo_rw.read_state = SDO_RW_PRINTED;
+		  	  	}
 	  }
+
+
+
+
+
+
+
+
 
 
     /* USER CODE END WHILE */
