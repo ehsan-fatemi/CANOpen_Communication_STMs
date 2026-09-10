@@ -22,7 +22,7 @@
 *******************************************************************************/
 OD_ATTR_PERSIST_COMM OD_PERSIST_COMM_t OD_PERSIST_COMM = {
     .x1000_deviceType = 0x00000000,
-    .x1005_COB_ID_SYNCMessage = 0xC0000080,
+    .x1005_COB_ID_SYNCMessage = 0x00000080,
     .x1006_communicationCyclePeriod = 0x00000000,
     .x1007_synchronousWindowLength = 0x00000000,
     .x1012_COB_IDTimeStampObject = 0x00000100,
@@ -73,7 +73,7 @@ OD_ATTR_RAM OD_RAM_t OD_RAM = {
         .COB_IDClientToServerRx = 0x00000600,
         .COB_IDServerToClientTx = 0x00000580
     },
-    .x2000_temperature = 0x00000000
+    .x2000_temperature = 0xFFFFFFFF
 };
 
 

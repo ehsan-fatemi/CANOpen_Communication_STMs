@@ -131,23 +131,42 @@ int main(void)
 
 	  if(sdo_rw.read_state !=  SDO_RW_RUNNING && sdo_rw.write_state != SDO_RW_DONE)
 	  {
-		  uint8_t buffer[2] = {0x00 , 0x01};
-		  sdo_write(0x1017 , 0x00 , 2 , buffer , 2 , 0x05 );
+		  ////Heart beat
+//		  uint8_t buffer[2] = {0x00 , 0x01};
+//		  sdo_write(0x1017 , 0x00 , 2 , buffer , 2 , 0x05 );
+
+		  // temperature
+		  uint16_t object_index = 0x2000;
+		  uint8_t buffer[4] = {0xEE , 0xEE , 0xEE , 0xEE};
+		  sdo_write(object_index , 0x00 , 4 , buffer , 4 , 0x05 );
+
 	  }
 
 	  if(sdo_rw.write_state != SDO_RW_RUNNING && sdo_rw.read_state != SDO_RW_PRINTED)
 	  {
-		  uint16_t object = 0x1017;
-		  uint8_t buffer[2] = {0};
-	  	sdo_read(object , 0x00 , buffer , 2 , 0x05);
+//		  uint16_t object_index = 0x1017;
+//		  uint8_t buffer[2] = {0};
+//	  	sdo_read(object_index , 0x00 , buffer , 2 , 0x05);
+
+		  // temperature
+		  uint16_t object_index = 0x2000;
+		  uint8_t buffer[4] = {0};
+		  sdo_read(object_index , 0x00 , buffer , 4 , 0x05);
 
 		  if(sdo_rw.read_state ==  SDO_RW_DONE )
-		  	  	{
-		  	  		char msg[30];
-		  			sprintf(msg, "\r\nObject of 0x%x is: 0x%.2x , 0x%.2x \r\n" , object , buffer[0] , buffer[1]);
-		  			HAL_UART_Transmit(&huart1, msg, strlen(msg), 100);
-		  			sdo_rw.read_state = SDO_RW_PRINTED;
-		  	  	}
+			{
+				char msg[80];
+				uint8_t pos = 0;
+				pos += snprintf(&msg[pos] , sizeof(msg) , "\r\nObject of 0x%x is:" , object_index);
+
+				for(uint8_t i=0; i<sizeof(buffer); i++)
+				{
+					pos += snprintf(&msg[pos] , sizeof(msg) , " 0x%x " , buffer[i]);
+				}
+				HAL_UART_Transmit(&huart1, msg, strlen(msg), 100);
+				sdo_rw.read_state = SDO_RW_PRINTED;
+			}
+
 	  }
 
 
