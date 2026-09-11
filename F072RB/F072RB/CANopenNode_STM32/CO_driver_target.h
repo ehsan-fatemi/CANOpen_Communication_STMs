@@ -45,13 +45,18 @@
 #error This STM32 does not support CAN or FDCAN
 #endif
 
-#define CO_CONFIG_NMT \
-    (CO_CONFIG_NMT_MASTER)
+// for NMT messages
+#define CO_CONFIG_NMT  (CO_CONFIG_NMT_MASTER)
 
+// For SDO messages
 #define CO_CONFIG_SDO_CLI 	(CO_CONFIG_SDO_CLI_ENABLE)
 #define CO_CONFIG_FIFO 		(CO_CONFIG_FIFO_ENABLE)
 
 #undef CO_CONFIG_STORAGE_ENABLE // We don't need the Storage option; implement it based on your use case and remove this line
+
+
+// for PDO messages
+#define CO_CONFIG_PDO    	CO_CONFIG_TPDO_ENABLE | CO_CONFIG_RPDO_ENABLE
 
 #ifdef CO_DRIVER_CUSTOM
 #include "CO_driver_custom.h"

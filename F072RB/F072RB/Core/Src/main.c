@@ -27,6 +27,7 @@
 /* USER CODE BEGIN Includes */
 #include <string.h>
 #include "CANOpen_App.h"
+#include "OD.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,13 +59,14 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void HAL_TIM_ErrorCallback(TIM_HandleTypeDef *htim)
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if(htim == canopen.timerHandle)
 	{
 		canopen_app_interrupt();
 	}
 }
+
 
 /* USER CODE END 0 */
 
@@ -101,6 +103,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM17_Init();
   /* USER CODE BEGIN 2 */
+  HAL_TIM_Base_Start_IT(&htim17);
   HAL_CAN_Start(&hcan);
   HAL_UART_Transmit(&huart1, "\r\nUART 1 Started!", sizeof("\r\nUART 1 Started!") , 100);
   HAL_UART_Receive_IT(&huart1, &Rx_buffer, 2);
@@ -119,11 +122,11 @@ int main(void)
   while (1)
   {
 	  uint32_t current_time = HAL_GetTick();
-	  if(current_time - previous_time >= 300)
-	  {
-		  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-		  previous_time = current_time;
-	  }
+//	  if(current_time - previous_time >= 300)
+//	  {
+//		  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+//		  previous_time = current_time;
+//	  }
 
 	  canopen_app_process();
 
@@ -168,11 +171,14 @@ int main(void)
 			}
 
 	  }
+	  if(current_time - previous_time > 1000)
+	  {
+		  char msg_2[80];
+		  sprintf(msg_2 , "\r\n.x6000: %x " , OD_PERSIST_COMM.x6000_temp);
+		  HAL_UART_Transmit(&huart1, msg_2, strlen(msg_2), 100);
 
-
-
-
-
+		  previous_time = current_time;
+	  }
 
 
 

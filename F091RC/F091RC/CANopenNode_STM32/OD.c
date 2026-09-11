@@ -55,11 +55,11 @@ OD_ATTR_PERSIST_COMM OD_PERSIST_COMM_t OD_PERSIST_COMM = {
         .SYNCStartValue = 0x00
     },
     .x1A00_TPDOMappingParameter = {
-        .numberOfMappedObjects = 0x02,
-        .mappedObject_1 = 0x60000020,
+        .numberOfMappedObjects = 0x01,
+        .mappedObject_1 = 0x60000020,   // index : 0x6000 sub:00 , length: 32 bit (0x20)
         .mappedObject_2 = 0x60000020
     },
-    .x6000_temp = 0x00000000
+    .x6000_temp = 0x1200
 };
 
 OD_ATTR_RAM OD_RAM_t OD_RAM = {
